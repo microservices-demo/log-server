@@ -1,2 +1,17 @@
-FROM fluent/fluentd:v0.14.10
-COPY fluent.conf /fluentd/etc
+FROM fluent/fluentd:latest-onbuild
+
+# The base image automatically copies fluent.conf and the plugins directory
+# inside the resulting image
+
+WORKDIR /home/fluent
+ENV PATH /home/fluent/.gem/ruby/2.3.0/bin:$PATH
+
+USER root
+RUN apk --no-cache add sudo build-base ruby-dev && \
+    sudo -u fluent gem install fluent-plugin-elasticsearch fluent-plugin-record-reformer && \
+    rm -rf /home/fluent/.gem/ruby/2.3.0/cache/*.gem && sudo -u fluent gem sources -c && \
+    apk del sudo build-base ruby-dev
+EXPOSE 24284
+USER fluent
+CMD exec fluentd -c /fluentd/etc/$FLUENTD_CONF -p /fluentd/plugins $FLUENTD_OPT
+
