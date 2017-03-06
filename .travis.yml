@@ -9,7 +9,7 @@ env:
 
 script:
   - set -e
-  - docker build -t ${GROUP}/${REPO}:${COMMIT} 
+  - docker build -t ${GROUP}/${REPO}:${COMMIT} .
 
 after_success:
   - set -e;
